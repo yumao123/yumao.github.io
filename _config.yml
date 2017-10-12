@@ -4,13 +4,14 @@
 # ---------------------------------------------------------------
 
 # Site
-title: NexT
+title: YumaoZzz
 subtitle:
 description:
-author: John Doe
+author: Yumao
 # Support language: de, en, fr-FR, id, ja, ko, pt-BR, pt, ru, zh-Hans, zh-hk, zh-tw
 language: en
 date_format: '%Y-%m-%d'
+repository: yumao123/yumao123.github.io
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com' and baseurl as '/child'
