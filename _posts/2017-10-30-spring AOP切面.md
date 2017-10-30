@@ -72,7 +72,7 @@ public class TestPerformance implements Performance{
         System.out.println("TestPerformance perform");
     }
 }
-// 通过@Aspect进行标注该类是一个切面
+// 通过@Aspect进行标注该类是一个切面(通知类)
 // AspectJ提供了5个注解定义通知
 // @After @AfterReturning @AfterThrowing @Around @Before
 @Aspect
@@ -103,7 +103,55 @@ public class AopConfig {
 xmlconfig:
 <aop:aspectj-autoproxy/>
 <bean class="concert.Audience"/>
-```
+``
 遇到的问题:<br/>
 1.AspectJ使用maven的artifactId应该是aspectjweaver<br/>
 2.aspectjweaver的版本需要与当前使用jdk版本一致,即jdk1.8对应的版本号是1.8.x,否则报错<br/>
+
+- 创建环绕通知
+```
+    @Around("execution(* springdemo.CD.Performance.perform(..))")
+    // ProceedingJoinPoint这个对象是必须要有的，因为要在通知中通过它来调用被通知的方法
+    public void watchPerformance(ProceedingJoinPoint jp){
+        try{
+            System.out.println("before...");
+            // 当要将控制权交给被通知的方法时，它需要调用ProceedingJoinPoint的proceed()方法
+            // 如果不调用proceed方法，方法就会被阻塞
+            jp.proceed();
+            System.out.println("after...");
+        }catch (Throwable e){
+            System.out.println("Exception...");
+        }
+    }
+```
+
+- 处理通知中的参数 154
+
+- 通过注解引入新功能
+
+## 在xml中声明切面
+如果要声明切面，但是又不能为类添加注解时，必须转向xml配置
+配置方式:
+```
+<aop:advisor>定义AOP通知器
+<aop:after>定义AOP后置通知（不管被通知的方法是否执行成功）
+<aop:afterreturning>定义AOP返回通知
+<aop:afterthrowing>定义AOP异常通知
+<aop:around>定义AOP环绕通知
+<aop:aspect>定义一个切面
+<aop:aspectjautoproxy>启用@AspectJ注解驱动的切面
+<aop:before>定义一个AOP前置通知
+<aop:config>顶层的AOP配置元素。大多数的<aop:*>元素必须包含在<aop:config>元素内
+<aop:declareparents>以透明的方式为被通知的对象引入额外的接口
+<aop:pointcut>定义一个切点
+```
+```
+    <bean id="audience" class="springdemo.CD.Audience"/>
+    <bean id="testPerformance" class="springdemo.CD.TestPerformance"/>
+    <aop:config>
+        <aop:aspect ref="audience">
+            <aop:pointcut id="perform" expression="execution(* springdemo.CD.TestPerformance.perform(..))"/>
+            <aop:before method="silenceCellPhones" pointcut-ref="perform"/>
+        </aop:aspect>
+    </aop:config>
+```
