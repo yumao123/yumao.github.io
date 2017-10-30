@@ -1,5 +1,5 @@
 ---
-title: Spring概述
+title: Spring装配bean
 description: Null
 categories:
  - Java
