@@ -238,7 +238,8 @@ public class CDPlayerConfig {
 }
 这里将app.properties里的disc.name加入到构造函数中
 ```
-解析属性占位符,占位符语法${}
+解析属性占位符,占位符语法(${})
+
 ```
 如果不通过javaconfig配置bean
 <bean id="mediaPlayer" class="springdemo.CD.CDPlayer" c:cd-ref="compactDisc" c:name="${disc.name}">
