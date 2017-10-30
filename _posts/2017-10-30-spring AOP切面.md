@@ -22,7 +22,7 @@ tags:
 ![截图]({{ site.url }}/assets/images/201710/aop2.png)
 **通知(advice)**<br/>
 AOP中，切面的工作称为通知，定义了切面是什么以及何时使用(调用前?调用后?抛出异常?)<br/>
-分为:前置通知(before) 后置通知(after) 返回通知(after-returning) 异常通知(after-throwing) 环绕通知(around)
+分为:前置通知(before) 后置通知(after) 返回通知(after-returning) 异常通知(after-throwing) 环绕通知(around)<br/>
 **切点(pointcut)**<br/>
 一个切点不需要通知应用的所有连接点，切点有助于缩小切面所通知的连接点范围，通常使用明确类、方法，或者利用正则定义锁匹配的类、方法指定切点<br/>
 **连接点(join point)**<br/>
