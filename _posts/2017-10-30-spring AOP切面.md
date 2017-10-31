@@ -108,7 +108,7 @@ xmlconfig:
 1.AspectJ使用maven的artifactId应该是aspectjweaver<br/>
 2.aspectjweaver的版本需要与当前使用jdk版本一致,即jdk1.8对应的版本号是1.8.x,否则报错<br/>
 
-- 创建环绕通知
+- 创建环绕通知<br/>
 ```
     @Around("execution(* springdemo.CD.Performance.perform(..))")
     // ProceedingJoinPoint这个对象是必须要有的，因为要在通知中通过它来调用被通知的方法
@@ -125,9 +125,64 @@ xmlconfig:
     }
 ```
 
-- 处理通知中的参数 154
+- 处理通知中的参数<br/>
+如果被通知的方法时有参数的，并且这些参数需要关注，那么久切片就需要访问这些参数
+![截图]({{ site.url }}/assets/images/201710/aop6.png)
+```
+@Aspect
+public class TrackCounter {
+    private Map<Integer, Integer> trackCounts = new HashMap<Integer, Integer>();
+    // args表明传给getPlayCount的int参数也会传给通知
+    @Pointcut("execution(* springdemo.CD.CompactDisc.playTrack(int)) && args(trackNumber)")
+    public void trackPlayed(int trackNumber){}
 
-- 通过注解引入新功能
+    @Before("trackPlayed(trackNumber)")
+    public void countTrack(int trackNumber){
+        int currentCount = getPlayCount(trackNumber);
+        currentCount ++;
+        trackCounts.put(trackNumber, currentCount);
+    }
+    public int getPlayCount(int trackNumber){
+        return trackCounts.containsKey(trackNumber) ? trackCounts.get(trackNumber) : 0;
+    }
+}
+```
+
+- 通过注解引入新功能<br/>
+由于java不是动态语言，所以不能像Python一样为对象或类动态添加方法，但是可以通过切片为spring bean添加新方法<br/>
+相当于切片实现了包装bean相同接口的代理，如果代理能暴露新接口<br/>
+![截图]({{ site.url }}/assets/images/201710/aop7.png)
+```
+接口
+public interface Encoreable {
+    void performEncore();
+}
+实现类
+public class EncoreableImpl implements Encoreable {
+    public void performEncore() {
+        System.out.println("performEncore");
+    }
+}
+切面
+@Aspect
+public class EncoreableConfig {
+    // 通过@DeclareParents注解，将Encoreable接口引入到Performance bean中
+    @DeclareParents(value="springdemo.CD.Performance+", defaultImpl = EncoreableImpl.class)
+    public static Encoreable encoreable;
+}
+测试
+@Test
+public void testPerform(){
+    ((Encoreable) performance).performEncore();
+    performance.perform();
+}
+```
+@DeclareParents注解由三部分组成：
+value属性指定了哪种类型的bean要引入该接口。在本例中，也就是所有实现Performance的类型。（标记符后面的加号表示是Performance的所有子类型，而不是Performance本身。）<br/>
+defaultImpl属性指定了为引入功能提供实现的类。在这里，我们指定的是DefaultEncoreable提供实现。<br/>
+@DeclareParents注解所标注的静态属性指明了要引入了接口。在这里，我们所引入的是Encoreable接口<br/>
+
+keywords:@Aspect,execution,@After,@AfterReturning,@AfterThrowing,@Around,@Before,@Pointcut,@DeclareParents
 
 ## 在xml中声明切面
 如果要声明切面，但是又不能为类添加注解时，必须转向xml配置
