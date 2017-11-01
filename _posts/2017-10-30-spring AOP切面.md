@@ -10,7 +10,7 @@ tags:
 
 > Spring的Aop切面
 散布于应用中多处的功能被称为横切关注点，且从概念上与应用的业务逻辑分离，将横切关注点与业务逻辑分离就是面向切面编程要解决的问题
-![Fate]({{ site.url }}/assets/images/201710/1030_top.png)
+![妹]({{ site.url }}/assets/images/201710/1030_top.png)
 
 ## AOP概述
 一个被划分为模块的应用
@@ -205,8 +205,12 @@ keywords:@Aspect,execution,@After,@AfterReturning,@AfterThrowing,@Around,@Before
     <bean id="testPerformance" class="springdemo.CD.TestPerformance"/>
     <aop:config>
         <aop:aspect ref="audience">
-            <aop:pointcut id="perform" expression="execution(* springdemo.CD.TestPerformance.perform(..))"/>
-            <aop:before method="silenceCellPhones" pointcut-ref="perform"/>
+            <aop:pointcut id="perform" expression="execution(* demo.Performance.perform(..))"/>
+            <!--<aop:before method="silenceCellPhones" pointcut-ref="perform"/>-->
+            <!-- 环绕 -->
+            <aop:around method="watchPerformance" pointcut-ref="perform"/>
+            <!-- 为被通知类引入新功能 -->
+            <aop:declare-parents types-matching="demo.Performance+" implement-interface="demo.Encoreable" default-impl="demo.DefaultEncoreable"/>
         </aop:aspect>
     </aop:config>
 ```
