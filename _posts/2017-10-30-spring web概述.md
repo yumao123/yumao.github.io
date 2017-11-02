@@ -9,6 +9,7 @@ tags:
 ---
 
 > Spring web概述
+主要内容有：如何启动springweb；如何建立简单的控制器且返回视图；如何接收处理来自客户端的请求
 ![unkown]({{ site.url }}/assets/images/201711/1101_top.png)
 
 ## 关于流程
@@ -79,3 +80,100 @@ RootConfig:
 public class RootConfig {
 }
 ```
+
+- 传递模型到视图中<br/>
+```
+DataConfig:
+@Configuration
+public class DataConfig {
+    @Bean
+    public DataSource dataSource(){
+        return new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .addScripts("schema.sql", "data.sql")
+                .build();
+    }
+    @Bean
+    public JdbcOperations jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+}
+JDBCSpittleRepository:
+@Repository
+public class JDBCSpittleRepository implements SpittleRepository {
+    @Autowired
+    private JdbcOperations jdbc;
+    public List<Spittle> getSpittles() {
+        return jdbc.query("select * from Spittle", new SpittleRowMapper());
+    }
+    private static class SpittleRowMapper implements RowMapper<Spittle> {
+        public Spittle mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Spittle(
+                    rs.getLong("id"),
+                    rs.getString("message"),
+                    rs.getDate("created_at"),
+                    rs.getDouble("longitude"),
+                    rs.getDouble("latitude"));
+        }
+    }
+}
+Controller:
+@Controller
+@RequestMapping("/spittles")
+public class SpittleController {
+    @Autowired
+    private SpittleRepository spittleRepository;
+    @RequestMapping(method = RequestMethod.GET)
+    public String spittles(Model model){
+        model.addAttribute("spittleList", spittleRepository.getSpittles());
+        return "spittles";
+    }
+}
+```
+注:@Repository：DAO组件类<br/>
+需要通过maven导入h2，spring-jdbc的依赖<br/>
+
+## 后端接受请求输入
+springmvc接收的请求有<br/>
+查询参数（Query Parameter）<br/>
+表单参数（Form Parameter）<br/>
+路径变量（Path Variable）<br/>
+
+- 查询参数
+```
+    @RequestMapping(method = RequestMethod.GET)
+    public List<Spittle> spittles(Model model, @RequestParam(defaultValue = MAX_LONG, value = "max") Long max){
+        System.out.println(max);
+        return spittleRepository.getSpittles();
+    }
+```
+- 路径参数
+```
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public String spittlesByPath(Model model, @PathVariable("id") Long id){
+        System.out.println(id);
+        model.addAttribute("spittleList", spittleRepository.getSpittles());
+        return "spittles";
+    }
+    注：这里不能直接返回List<Spittle>,因为url最后一个是id,逻辑视图的名称将会根据请求路径推断得出
+```
+Spring MVC允许我们在@RequestMapping路径中添加占位符。占位符的名称要用大括号（“{”和“}”）括起来。路径中的其他部分要与所处理的请求完全匹配，但是占位符部分可以是任意的值<br/>
+
+## 处理表单
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
