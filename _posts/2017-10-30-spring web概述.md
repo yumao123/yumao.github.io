@@ -159,9 +159,33 @@ springmvc接收的请求有<br/>
 ```
 Spring MVC允许我们在@RequestMapping路径中添加占位符。占位符的名称要用大括号（“{”和“}”）括起来。路径中的其他部分要与所处理的请求完全匹配，但是占位符部分可以是任意的值<br/>
 
+keywords:DispatcherServlet,@EnableWebMvc,ViewResolver,@Repository,@Controller,@RequestMapping,@RequestParam,@PathVariable,Model
+
 ## 处理表单
-
-
+```
+    @RequestMapping(value = "register", method = RequestMethod.POST)
+    // 当处理注册表单的POST请求时，控制器需要接受表单数据并将表单数据保存为Spitter对象
+    public String register(Spitter spitter){
+        spitterRepository.save(spitter);
+        // 当InternalResourceViewResolver看到视图格式中的“redirect:”前缀时，它就知道要将其解析为重定向的规则，而不是视图的名称
+        return "redirect:/spitter/" + spitter.getUsername();
+    }
+    @RequestMapping(value = "/{username}", method = RequestMethod.GET)
+    public String showSpitter(@PathVariable("username") String username, Model model){
+        model.addAttribute(spitterRepository.findByUsername(username));
+        return "profile";
+    }
+registerForm:
+<form method="POST">
+    First Name: <input type="text" name="firstName" /><br/>
+    Last Name: <input type="text" name="lastName" /><br/>
+    Email: <input type="email" name="email" /><br/>
+    Username: <input type="text" name="username" /><br/>
+    Password: <input type="password" name="password" /><br/>
+    <input type="submit" value="Register" />
+</form>
+```
+keywords:redirect:
 
 
 
